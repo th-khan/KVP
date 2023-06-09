@@ -57,7 +57,7 @@ private class accountTriggerTest{
     
     @isTest
     static void dummyUser(){
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User']; // Replace with appropriate profile name
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User'];
         User testUser = new User(
             Alias = 'testUser',
             Email = 'testuser@example.com',
