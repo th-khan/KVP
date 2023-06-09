@@ -1,8 +1,15 @@
 trigger AccountTrigger on Account(before insert, before update){
     
     if(trigger.isInsert && trigger.isBefore){
-
-			Set<id> accountIds = new Set<Id>();
+        
+        Set<Id> userId = new Set<Id>();
+        
+        for(PermissionSetAssignment a: [select id, AssigneeId from PermissionSetAssignment where PermissionSet.Name = 'Account_Manager']){
+            userId.add(a.AssigneeId);
+        }
+        
+        if(userId.contains(system.UserInfo.getUserId())){
+            Set<id> accountIds = new Set<Id>();
             Set<Id> existingId = new Set<id>();
             List<Contact> newContacts = new List<Contact>();
             for(Account a: trigger.new){
@@ -30,34 +37,44 @@ trigger AccountTrigger on Account(before insert, before update){
             if(!newContacts.isEmpty()){
                 insert newContacts;
             }
-
-        
+        }
+			        
         
     }
     
     if(trigger.isUpdate && trigger.isBefore){
-
-        List<Contact> conList = [select id, LastName from Contact where AccountId in: trigger.newmap.keySet()];
-        List<Contact> newList = new List<Contact>();
-        Set<Id> accountIdWithContact = new Set<Id>();
         
-        for(Contact c: conList){
-            accountIdWithContact.add(c.AccountId);
+                
+        Set<Id> userId = new Set<Id>();
+        for(PermissionSetAssignment a: [select id, AssigneeId from PermissionSetAssignment where PermissionSet.Name = 'Account_Manager']){
+            userId.add(a.AssigneeId);
         }
         
-        for(Account a: trigger.new){
-            if(a.Active__c && !accountIdWithContact.contains(a.Id) && a.Account_Activation_Summary__c != null){
-                system.debug('validation success');
-                Contact c = new Contact();
- 				c.AccountId = a.Id;
-				c.LastName ='Customer Representative ' + a.Name;
-				newList.add(c);
+        if(userId.contains(system.UserInfo.getUserId())){
+
+            List<Contact> conList = [select id, LastName from Contact where AccountId in: trigger.newmap.keySet()];
+            List<Contact> newList = new List<Contact>();
+            Set<Id> accountIdWithContact = new Set<Id>();
+            
+            for(Contact c: conList){
+                accountIdWithContact.add(c.AccountId);
+            }
+            
+            for(Account a: trigger.new){
+                if(a.Active__c && !accountIdWithContact.contains(a.Id) && a.Account_Activation_Summary__c != null){
+                    system.debug('validation success');
+                    Contact c = new Contact();
+                    c.AccountId = a.Id;
+                    c.LastName ='Customer Representative ' + a.Name;
+                    c.Phone = a.Phone;
+                    c.Email = a.Email__c;
+                    newList.add(c);
+                }
+            }
+            if(!newList.isEmpty()){
+                insert newList;
             }
         }
-        if(!newList.isEmpty()){
-            insert newList;
-        }
-        
     }
     
 }
