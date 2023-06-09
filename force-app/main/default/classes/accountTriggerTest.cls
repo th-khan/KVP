@@ -54,4 +54,36 @@ private class accountTriggerTest{
         List<Contact> conList = [select id, Name, LastName from Contact where AccountId in: accId];
 		system.assert(!conList.isEmpty());
     }
+    
+    @isTest
+    static void dummyUser(){
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User']; // Replace with appropriate profile name
+        User testUser = new User(
+            Alias = 'testUser',
+            Email = 'testuser@example.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Test',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = p.Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'testusewerewr@example.com'
+        );
+        insert testUser;
+        
+        System.runAs(testUser) {
+            
+            Account newAccount = new Account();
+            newAccount.Name = 'thk new test account';
+            newAccount.Phone = '9797897464';
+            newAccount.Email__c = 'thkhan@gmail.com';
+            try {
+                insert newAccount;
+            } catch (Exception e) {
+                System.debug(e.getMessage());
+            }
+
+            
+        }
+    }
 }
