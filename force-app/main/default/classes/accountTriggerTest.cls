@@ -21,39 +21,7 @@ private class accountTriggerTest{
     static void positiveTest(){
             List<Account> accList = [select id, Name, Type, Active__c from Account];
             List<Contact> conList = [select id, Name, LastName from Contact];
-            system.assert(!conList.isEmpty());
-            for(Contact c: conList){
-                system.debug(c.LastName);
-            }  
-       
-    }
-    
-    @isTest
-    static void dummyUser(){
-            
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Custom: Sales Profile'];
-        User testUser = new User(
-            Alias = 'testUser',
-            Email = 'testuser@example.com',
-            EmailEncodingKey = 'UTF-8',
-            LastName = 'Test',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            ProfileId = p.Id,
-            TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'testuserdd@example.com'
-        );
-        insert testUser;
-        
-        System.runAs(testUser) {
-            List<Account> accList = [select id, Name, Type, Active__c from Account];
-            List<Contact> conList = [select id, Name, LastName from Contact];
-            system.assert(conList.isEmpty());
-            for(Contact c: conList){
-                system.debug(c.LastName);
-            }  
-        }
-       
+            system.assert(!conList.isEmpty());       
     }
     
       

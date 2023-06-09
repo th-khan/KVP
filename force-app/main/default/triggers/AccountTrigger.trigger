@@ -1,4 +1,4 @@
-trigger AccountTrigger on Account(before insert, before update){
+trigger AccountTrigger on Account(before insert, before update, after insert){
     
     if(trigger.isInsert && trigger.isBefore){
         
@@ -8,8 +8,17 @@ trigger AccountTrigger on Account(before insert, before update){
             userId.add(a.AssigneeId);
         }
         
-        if(userId.contains(system.UserInfo.getUserId())){
-            Set<id> accountIds = new Set<Id>();
+        if(!userId.contains(system.UserInfo.getUserId())){
+            for(Account a: trigger.new){
+                a.addError('auth error');
+            }
+        }
+			        
+        
+    }
+    if(trigger.isInsert && trigger.isAfter){
+        
+        Set<id> accountIds = new Set<Id>();
             Set<Id> existingId = new Set<id>();
             List<Contact> newContacts = new List<Contact>();
             for(Account a: trigger.new){
@@ -24,7 +33,7 @@ trigger AccountTrigger on Account(before insert, before update){
             }
             
             for(Account a: trigger.new){
-                if(!existingId.contains(a.Id)){
+                if(!existingId.contains(a.Id) && a.Active__c){
                     Contact c = new Contact();
                     c.FirstName = 'a.Name';
                     c.AccountId = a.Id;
@@ -37,9 +46,6 @@ trigger AccountTrigger on Account(before insert, before update){
             if(!newContacts.isEmpty()){
                 insert newContacts;
             }
-        }
-			        
-        
     }
     
     if(trigger.isUpdate && trigger.isBefore){
